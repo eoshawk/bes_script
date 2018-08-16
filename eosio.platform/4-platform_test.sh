@@ -148,5 +148,15 @@ cleos system claimrewards voter1 producer1
 cleos get currency balance eosio.token voter1
 '
 
+:<<'
+cleos system delegatebw voter1 voter1 '500 EOS' '500 EOS'
+cleos system voteproducer prods voter1 producer2 '1000 EOS'
+cleos get account
+cleos system delegatebw voter1 voter1 '500 EOS' '500 EOS'
+cleos system voteproducer prods voter1 producer3 '1000 EOS'
+cleos get table eosio producer1 userres
+cleos push action eosio upramuseage '{"owner":"producer1"}' -p producer1
+cleos system sellram producer1 68554 -p producer1
+'
 
 
