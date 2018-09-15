@@ -1,6 +1,6 @@
 #!/bin/bash
 
-contracts_dir=/home/jason/center_project/bes/src/build_eosforbes/build/contracts
+contracts_dir=/home/jason/workspace/bes/src/build_eosforbes/build/contracts
 
 #显示执行的命令
 set -xv
@@ -13,6 +13,7 @@ cleos create account eosio eosio.ramfee EOS6An9TxNk3mqKnRX9y92UJbWXEPSUxLD2PEtD9
 cleos create account eosio eosio.stake EOS6An9TxNk3mqKnRX9y92UJbWXEPSUxLD2PEtD9eTZfuBeHxBDpD
 cleos create account eosio eosio.token EOS6An9TxNk3mqKnRX9y92UJbWXEPSUxLD2PEtD9eTZfuBeHxBDpD
 cleos create account eosio eosio.rpay EOS6An9TxNk3mqKnRX9y92UJbWXEPSUxLD2PEtD9eTZfuBeHxBDpD
+cleos create account eosio eosio.apname EOS6An9TxNk3mqKnRX9y92UJbWXEPSUxLD2PEtD9eTZfuBeHxBDpD
 
 #set token contract,and msig contract
 cleos set contract eosio.token $contracts_dir/eosio.token/
@@ -38,6 +39,27 @@ cleos push action eosio setpriv '["eosio.msig", 1]' -p eosio@active
 #get balance for eosio
 cleos get account eosio
 cleos get currency balance eosio.token eosio
+
+#设置空投账户资源限制并查看
+cleos push action eosio airdroplimit '["4096","1.0000 EOS","1.0000 EOS"]' -p eosio
+sleep 1
+cleos get table eosio eosio global
+read
+#转账给eosio.apname并创建空投账户
+cleos transfer eosio eosio.apname "100000000.0000 EOS"
+
+cleos system newaccount --transfer --stake-net "1.0000 EOS" --stake-cpu "1.0000 EOS" --buy-ram-kbytes "4" eosio.apname airdroptest1  EOS7tSY5od1Hu7hMvParp3VfWzXyhvhiCPZjq1XMDWZb7s84C1n1F
+cleos get account airdroptest1
+cleos get table eosio eosio airdrops
+
+cleos system newaccount --transfer --stake-net "1.0000 EOS" --stake-cpu "1.0000 EOS" --buy-ram-kbytes "4" eosio.apname airdroptest2  EOS7tSY5od1Hu7hMvParp3VfWzXyhvhiCPZjq1XMDWZb7s84C1n1F
+cleos get account airdroptest2
+cleos get table eosio eosio airdrops 
+##尝试错误操作
+###各类资源只能空投一次
+cleos system buyram -k eosio.apname airdroptest2 1
+cleos system buyram -k eosio.apname airdroptest2 1
+cleos system delegatebw  eosio.apname airdroptest2 "0.1000 EOS" "0.0000 EOS"  1
 
 #create accounts
 cleos system newaccount --transfer --stake-net "100.0000 EOS" --stake-cpu "100.0000 EOS" --buy-ram "10.0000 EOS" eosio producer1  EOS7tSY5od1Hu7hMvParp3VfWzXyhvhiCPZjq1XMDWZb7s84C1n1F
